@@ -2,7 +2,7 @@
 # about: API to create/manage namespaced groups and categories on a Discourse instance
 # version: 0.1.0
 # authors: Leo McArdle
-# url: https://github.com/mozilla/discourse-mozilla-groups
+# url: https://github.com/mozilla/discourse-mozilla-gcm
 
 PLUGIN_NAME ||= "MozillaGCM".freeze
 
