@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - node
+install:
+  npm install -g redoc-cli
+script:
+  redoc-cli bundle -o gh-pages/index.html api.yml
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  local_dir: gh-pages

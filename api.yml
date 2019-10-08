@@ -1,0 +1,365 @@
+openapi: 3.0.0
+info:
+  title: Discourse Mozilla GCM API
+  version: 0.1.0
+  description: |-
+    API to create/manage namespaced groups and categories on a Discourse instance.
+
+    ## Other Discourse APIs:
+    - [Compose Topic](https://meta.discourse.org/t/compose-a-new-pre-filled-topic-via-url/28074)
+    - [Compose Personal/Group Message](https://meta.discourse.org/t/compose-a-new-pre-filled-personal-message-via-url/35984)
+    - [Get topics in category API](https://docs.discourse.org/#tag/Categories/paths/~1c~1{id}.json/get) - api key not neccessary for public categories
+    - [Embed category API](https://meta.discourse.org/t/embedding-a-list-of-discourse-topics-in-another-site/125911)
+tags:
+  - name: Groups
+  - name: Categories
+  - name: Users
+paths:
+  /groups:
+    post:
+      operationId: groups#create
+      summary: Create group
+      description: If `user_id`s are specified which aren't associated with an account on Discourse already, accounts will be created associated with those `user_id`s, and their notification preferences will be automatically set up to always recieve email notifications.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/group'
+                - required: [name]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    $ref: '#/components/schemas/group_id'
+                  discourse_group_name:
+                    $ref: '#/components/schemas/discourse_group_name'
+              examples:
+                simple:
+                  value:
+                    id: 412
+                    discourse_group_name:
+                      "mdm-tea-lovers"
+                naming conflict:
+                  value:
+                    id: 412
+                    discourse_group_name:
+                      "mdm-tea-lovers1"
+                shortened:
+                  value:
+                    id: 412
+                    discourse_group_name:
+                      "community-portal-tea-lov"
+        401:
+          $ref: '#/components/responses/unauthorized'
+      tags: [Groups]
+  /groups/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/group_id'
+        required: true
+        description: The group ID
+    get:
+      operationId: groups#show
+      summary: Get group
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/group'
+                  - properties:
+                      discourse_group_name:
+                        $ref: '#/components/schemas/discourse_group_name'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/not_found'
+      tags: [Groups]
+    patch:
+      operationId: groups#update
+      summary: Update group
+      description: Passing a list of users here will reset the membership of the group to only those in the list. Users can be added/removed using the `/group/{id}/users` and `/group/{id}/users/remove` routes below. Users which don't yet exist in Discourse will be created.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/group'
+            example:
+              name: "We Love Tea"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  discourse_group_name:
+                    $ref: '#/components/schemas/discourse_group_name'
+              example:
+                discourse_group_name:
+                  "mdm-we-love-tea"
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/not_found'
+      tags: [Groups]
+    delete:
+      operationId: groups#destroy
+      summary: Remove group
+      responses:
+        '200':
+          description: OK
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/not_found'
+      tags: [Groups]
+  /groups/{id}/users:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/group_id'
+        required: true
+        description: The group ID
+    patch:
+      operationId: groups#modify_users
+      summary: Add or remove users
+      description: If users passed here don't yet exist in Discourse, they'll be created.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                add:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/user_id'
+                remove:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/user_id'
+      responses:
+        '200':
+          description: OK
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/not_found'
+      tags: [Groups]
+  /categories:
+    post:
+      operationId: categories#create
+      summary: Create category
+      description: The category will be publicly visible and postable to. Groups passed will be subscribed to the category. Topics in this category will be hidden from Discourse's [latest topics view](https://discourse.mozilla.org/latest).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/category'
+                - required:
+                  - name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                        id:
+                          $ref: '#/components/schemas/category_id'
+                  - $ref: '#/components/schemas/category_extended_attributes'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      tags: [Categories]
+  /categories/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/category_id'
+        required: true
+        description: The category ID
+    get:
+      operationId: categories#show
+      summary: Get category
+      tags: [Categories]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/category'
+                  - $ref: '#/components/schemas/category_extended_attributes'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/not_found'
+    patch:
+      operationId: categories#update
+      summary: Update category
+      description: Passing a list of groups here will reset the subscribed groups on the category to only those in the list.
+      tags: [Categories]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/category'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/category_extended_attributes'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/not_found'
+    delete:
+      operationId: categories#destroy
+      tags: [Categories]
+      summary: Archive category
+      description: Category will be made read only and moved under the "Archives" parent category.
+      responses:
+        '200':
+          description: OK
+        401:
+          $ref: '#/components/responses/unauthorized'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/not_found'
+  /users/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: '#/components/schemas/user_id'
+        required: true
+        description: The user ID
+    get:
+      operationId: users#show
+      summary: Get user
+      tags: [Users]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: "lmcardle"
+                  url:
+                    type: string
+                    example: "https://discourse.example.com/u/lmcardle"
+                  groups:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/group_id'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          description: Not Found. Users who don't exist yet in Discourse will be transparently created when passed to other commands.
+components:
+  securitySchemes:
+    api_key_auth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+  schemas:
+    group:
+      title: group
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Tea Lovers"
+        description:
+          type: string
+          example: "For those who love tea"
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/user_id'
+          example: ["ad|Mozillians-LDAP|lmcardle", "oauth2|firefoxaccounts|123456"]
+    category:
+      title: category
+      type: object
+      properties:
+        name:
+          type: string
+          example: Coffee Club
+        description:
+          type: string
+          example: Public discussion of the Coffee Club's activities
+        groups:
+          type: array
+          description: Array of groups which should be subscribed to the category
+          items:
+            $ref: '#/components/schemas/group_id'
+    category_id:
+      title: category_id
+      type: integer
+      example: 123
+    category_extended_attributes:
+      properties:
+        email_in:
+          type: string
+          format: email
+          example: "mdm.coffee-club@discourse.example.com"
+        url:
+          type: string
+          example: "https://discourse.example.com/c/mdm/coffee-club"
+    user_id:
+      title: Auth0 User ID
+      type: string
+      example: 'ad|Mozilla-LDAP|lmcardle'
+    group_id:
+      title: group_id
+      type: integer
+      example: 412
+    discourse_group_name:
+      type: string
+      description: group name used on discourse (will be namespaced, could be shortened or have naming conflicts resolved)
+      example: "mdm-tea-lovers"
+  responses:
+    unauthorized:
+      description: Unauthorized
+    forbidden:
+      description: Forbidden
+    not_found:
+      description: Not Found
+security:
+  - api_key_auth: []
