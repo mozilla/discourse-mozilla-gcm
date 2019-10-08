@@ -28,9 +28,9 @@ Bug reports should be filed [by following the process described here](https://di
 
 ## Running tests
 
-Clone this plugin into `plugins/discourse-mozilla-groups-api` in the root of your Discourse source dir.
+Clone this plugin into `plugins/discourse-mozilla-gcm` in the root of your Discourse source dir.
 
-Use `RAILS_ENV=test rake plugin:spec[discourse-mozilla-groups-api]` to run the tests.
+Use `RAILS_ENV=test rake plugin:spec[discourse-mozilla-gcm]` to run the tests.
 
 ## Licence
 
