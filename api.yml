@@ -16,7 +16,7 @@ tags:
   - name: Users
 servers:
   - url: https://discourse-dev.itsre-apps.mozit.cloud/mozilla_gcm
-    name: Development server
+    description: Development server
 paths:
   /groups:
     post:
