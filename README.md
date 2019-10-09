@@ -1,6 +1,11 @@
 # Discourse Mozilla Group and Category Management
 *API to create/manage namespaced groups and categories on a Discourse instance*
 
+## API
+
+* [Documentation](https://mozilla.github.io/discourse-mozilla-gcm/)
+* [OpenAPI document](api.yml)
+
 ## Dependencies
 
 This plugin has a dependency on other Discourse plugins, these are:
