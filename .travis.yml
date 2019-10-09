@@ -2,10 +2,10 @@ language: node_js
 node_js:
 - node
 before_install:
-- openssl aes-256-cbc -K $encrypted_222032d3e245_key -iv $encrypted_222032d3e245_iv
-  -in .deploy/id_rsa.enc -out .deploy/id_rsa -d
+- openssl aes-256-cbc -K $encrypted_222032d3e245_key -iv $encrypted_222032d3e245_iv -in .deploy/id_rsa.enc -out .deploy/id_rsa -d
 install: npm install -g redoc-cli
-script: redoc-cli bundle -o gh-pages/index.html api.yml
+script:
+- redoc-cli bundle --title "discourse-mozilla-gcm api documentation" -o gh-pages/index.html api.yml
 deploy:
   provider: pages:git
   edge: true # opt in to dpl v2
