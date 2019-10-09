@@ -1,13 +1,35 @@
-language: node_js
-node_js:
-- node
-before_install:
-- openssl aes-256-cbc -K $encrypted_222032d3e245_key -iv $encrypted_222032d3e245_iv -in .deploy/id_rsa.enc -out .deploy/id_rsa -d
-install: npm install -g redoc-cli
-script:
-- redoc-cli bundle --title "discourse-mozilla-gcm api documentation" --options.expandResponses="all" -o gh-pages/index.html api.yml
-deploy:
-  provider: pages:git
-  edge: true # opt in to dpl v2
-  local_dir: gh-pages
-  deploy_key: .deploy/id_rsa
+matrix:
+  include:
+    - language: node_js
+      node_js:
+      - node
+      before_install:
+      - openssl aes-256-cbc -K $encrypted_222032d3e245_key -iv $encrypted_222032d3e245_iv -in .deploy/id_rsa.enc -out .deploy/id_rsa -d
+      install: npm install -g redoc-cli
+      script:
+      - redoc-cli bundle --title "discourse-mozilla-gcm api documentation" --options.expandResponses="all" -o gh-pages/index.html api.yml
+      deploy:
+        provider: pages:git
+        edge: true # opt in to dpl v2
+        local_dir: gh-pages
+        deploy_key: .deploy/id_rsa
+
+      # We want to use the KVM-based system, so require sudo
+    - sudo: required
+      services:
+        - docker
+      before_install:
+        - git clone https://github.com/mozilla/discourse-mozilla-travis.git
+        - git clone https://github.com/mozilla/discourse-mozilla-iam.git -b development
+        - git clone https://github.com/mozilla/discourse-group-category-notification.git -b development
+      install: true
+      before_script:
+        - source discourse-mozilla-travis/before_script.sh
+        - sed -i "s,-v,-v \$(pwd)/discourse-mozilla-iam:/var/www/discourse/plugins/discourse-mozilla-iam -v," discourse-mozilla-travis/script.sh
+        - sed -i "s,-v,-v \$(pwd)/discourse-group-category-notification:/var/www/discourse/plugins/discourse-group-category-notification -v," discourse-mozilla-travis/script.sh
+        - sed -i 's,! -path "plugins/discourse-narrative-bot",! -path "plugins/discourse-narrative-bot" ! -path "plugins/discourse-mozilla-iam" ! -path "plugins/discourse-group-category-notification",' discourse-mozilla-travis/entrypoint.sh
+      script:
+        - discourse-mozilla-travis/script.sh
+      deploy:
+        on:
+          condition: true == false # disable deploy

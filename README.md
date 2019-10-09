@@ -1,6 +1,8 @@
 # Discourse Mozilla Group and Category Management
 *API to create/manage namespaced groups and categories on a Discourse instance*
 
+[![Build Status](https://travis-ci.org/mozilla/discourse-mozilla-gcm.svg?branch=master)](https://travis-ci.org/mozilla/discourse-mozilla-gcm)
+
 ## API
 
 * [Documentation](https://mozilla.github.io/discourse-mozilla-gcm/)
