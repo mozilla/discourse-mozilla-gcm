@@ -5,7 +5,7 @@ info:
   description: |-
     API to create/manage namespaced groups and categories on a Discourse instance.
 
-    ## Other Discourse APIs:
+    ## Other Discourse APIs
     - [Compose Topic](https://meta.discourse.org/t/compose-a-new-pre-filled-topic-via-url/28074)
     - [Compose Personal/Group Message](https://meta.discourse.org/t/compose-a-new-pre-filled-personal-message-via-url/35984)
     - [Get topics in category API](https://docs.discourse.org/#tag/Categories/paths/~1c~1{id}.json/get) - api key not neccessary for public categories
@@ -14,12 +14,15 @@ tags:
   - name: Groups
   - name: Categories
   - name: Users
+servers:
+  - url: https://discourse-dev.itsre-apps.mozit.cloud/mozilla_gcm
+    name: Development server
 paths:
   /groups:
     post:
       operationId: groups#create
       summary: Create group
-      description: If `user_id`s are specified which aren't associated with an account on Discourse already, accounts will be created associated with those `user_id`s, and their notification preferences will be automatically set up to always recieve email notifications.
+      description: If `user_id`s are specified which aren't associated with an account on Discourse already, accounts will be created associated with those `user_id`s.
       requestBody:
         content:
           application/json:
@@ -90,7 +93,7 @@ paths:
     patch:
       operationId: groups#update
       summary: Update group
-      description: Passing a list of users here will reset the membership of the group to only those in the list. Users can be added/removed using the `/group/{id}/users` and `/group/{id}/users/remove` routes below. Users which don't yet exist in Discourse will be created.
+      description: Passing a list of users here will reset the membership of the group to only those in the list. Users can be added/removed using the `/group/{id}/users` route. Users which don't yet exist in Discourse will be created.
       requestBody:
         content:
           application/json:
@@ -171,7 +174,7 @@ paths:
     post:
       operationId: categories#create
       summary: Create category
-      description: The category will be publicly visible and postable to. Groups passed will be subscribed to the category. Topics in this category will be hidden from Discourse's [latest topics view](https://discourse.mozilla.org/latest).
+      description: Groups passed will be subscribed to the category.
       requestBody:
         content:
           application/json:
