@@ -58,6 +58,7 @@ describe MozillaGCM::CategoriesController do
       expect(category.parent_category).to eq parent_category
       check_user_subscribed(user1, category)
       check_user_subscribed(user2, category)
+      expect(category.suppress_from_latest).to eq true
     end
 
     context "with no name" do

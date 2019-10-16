@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Discourse Mozilla GCM API
-  version: 0.1.0
+  version: 0.1.1
   description: |-
     API to create/manage namespaced groups and categories on a Discourse instance.
 
@@ -174,7 +174,7 @@ paths:
     post:
       operationId: categories#create
       summary: Create category
-      description: Groups passed will be subscribed to the category.
+      description: Groups passed will be subscribed to the category. The category's topics won't be shown on the global `/latest` view.
       requestBody:
         content:
           application/json:

@@ -11,7 +11,8 @@ module MozillaGCM
         name: params[:name],
         parent_category: @client.category,
         user: Discourse.system_user,
-        description: params[:description]
+        description: params[:description],
+        suppress_from_latest: true,
       )
 
       category.save!
