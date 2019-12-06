@@ -12,10 +12,13 @@ module MozillaGCM
         parent_category: @client.category,
         user: Discourse.system_user,
         description: params[:description],
-        suppress_from_latest: true,
       )
 
       category.save!
+
+      DistributedMutex.synchronize("mozilla_gcm_default_categories_muted") do
+        SiteSetting.default_categories_muted = [SiteSetting.default_categories_muted, category.id].reject(&:blank?).join("|")
+      end
 
       @groups&.each do |group|
         ::GroupCategoryNotification.add(group, category)

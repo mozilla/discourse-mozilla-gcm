@@ -41,6 +41,10 @@ describe MozillaGCM::CategoriesController do
     include_examples "insert_groups_if_allowed"
 
     it "succeeds" do
+      c1 = Fabricate(:category).id
+      c2 = Fabricate(:category).id
+      SiteSetting.default_categories_muted = "#{c1}|#{c2}"
+
       query_api params: {
         name: "Coffee Club",
         description: "Public discussion of the Coffee Club's activities",
@@ -58,7 +62,7 @@ describe MozillaGCM::CategoriesController do
       expect(category.parent_category).to eq parent_category
       check_user_subscribed(user1, category)
       check_user_subscribed(user2, category)
-      expect(category.suppress_from_latest).to eq true
+      expect(SiteSetting.default_categories_muted.split("|")).to match_array([c1.to_s, c2.to_s, category.id.to_s])
     end
 
     context "with no name" do
