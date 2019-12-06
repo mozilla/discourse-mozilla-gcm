@@ -4,7 +4,7 @@ module MozillaGCM
 
     def create
       return render json: {}, status: 400 unless params[:name]
-      
+
       short_name = UserNameSuggester.fix_username User.normalize_username("#{@client.namespace} #{params[:name]}")
 
       group = Group.new(
@@ -24,8 +24,8 @@ module MozillaGCM
 
     def show
       user_ids = @group.users.map do |user|
-        MozillaIAM::Profile.for(user).uid
-      end
+        MozillaIAM::Profile.for(user)&.uid
+      end.reject(&:blank?)
 
       render json: { name: @group.full_name, description: @group.bio_raw, users: user_ids, discourse_group_name: @group.name }, status: 200
     end

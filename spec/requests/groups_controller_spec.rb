@@ -77,6 +77,16 @@ describe MozillaGCM::GroupsController do
         expect(body["users"]).to match_array ["uid1", "uid2"]
         expect(body["discourse_group_name"]).to eq "test_tea_lovers"
       end
+
+      context "with user without uid" do
+        it "returns ok" do
+          group.add(Fabricate(:user))
+          query_api
+          expect(response.status).to eq 200
+          body = JSON.parse(response.body)
+          expect(body["users"]).to match_array ["uid1", "uid2"]
+        end
+      end
     end
 
     describe "#update" do
