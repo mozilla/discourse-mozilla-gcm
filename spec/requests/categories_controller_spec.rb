@@ -41,6 +41,7 @@ describe MozillaGCM::CategoriesController do
     include_examples "insert_groups_if_allowed"
 
     it "succeeds" do
+      normal_user = Fabricate(:user)
       c1 = Fabricate(:category).id
       c2 = Fabricate(:category).id
       SiteSetting.default_categories_muted = "#{c1}|#{c2}"
@@ -63,6 +64,7 @@ describe MozillaGCM::CategoriesController do
       check_user_subscribed(user1, category)
       check_user_subscribed(user2, category)
       expect(SiteSetting.default_categories_muted.split("|")).to match_array([c1.to_s, c2.to_s, category.id.to_s])
+      check_user_subscribed(normal_user, category, :muted)
     end
 
     context "with no name" do

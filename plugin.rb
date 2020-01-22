@@ -1,6 +1,6 @@
 # name: mozilla-gcm
 # about: API to create/manage namespaced groups and categories on a Discourse instance
-# version: 0.1.3
+# version: 0.1.4
 # authors: Leo McArdle
 # url: https://github.com/mozilla/discourse-mozilla-gcm
 

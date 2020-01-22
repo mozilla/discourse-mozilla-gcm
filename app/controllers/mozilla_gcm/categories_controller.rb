@@ -16,6 +16,13 @@ module MozillaGCM
 
       category.save!
 
+      # shamelessly adapted from https://github.com/discourse/discourse/blob/4e4844f4dbcbab50502f9feb973dbd13c6a75246/app/controllers/admin/site_settings_controller.rb#L54-L71
+      User.select(:id).find_in_batches do |users|
+        category_users = []
+        users.each { |user| category_users << { category_id: category.id, user_id: user.id, notification_level: NotificationLevels.all[:muted] } }
+        CategoryUser.insert_all!(category_users)
+      end
+
       DistributedMutex.synchronize("mozilla_gcm_default_categories_muted") do
         SiteSetting.default_categories_muted = [SiteSetting.default_categories_muted, category.id].reject(&:blank?).join("|")
       end
